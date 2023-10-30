@@ -1,9 +1,11 @@
 const inquirer = require('inquirer');
+const path = require('path');
 const fs = require('fs');
 const SVG = require('@svgdotjs/svg.js');
 const Square = require('./lib/square');
 const Circle = require('./lib/circle');
 const Triangle = require('./lib/triangle');
+const Shape = require('/lib/shape');
 
 inquirer.prompt({
   type: 'input',
@@ -55,9 +57,10 @@ inquirer.prompt({
 .then(finalAnswers => {
     const { logoAcronym, colourInput, shapeInput } = finalAnswers;
     
-    const draw = SVG().size(300, 300);
-    
-    let shape;
+    const canvasSize = 300; //created canvas size to allow for letter placement//
+    const draw = SVG().size(canvasSize, canvasSize);
+
+    let shape; //add shape with colour//
     if (shapeInput.toLowerCase() === 'circle') {
       shape = new Circle(colourInput, 100);
     } else if (shapeInput.toLowerCase() === 'square') {
@@ -66,11 +69,17 @@ inquirer.prompt({
       shape = new Triangle(colourInput, 100);
     }
     
-    if (shape) {
-      shape.draw(draw);
-      fs.writeFileSync('output.svg', draw.svg());
-      console.log('SVG file created successfully!');
-    } else {
-      console.log('Invalid shape input');
+    if (shape) { //add logo //
+        shape.draw(draw);
+        const text = draw.text(logoAcronym).font({ size: 40, anchor: 'middle', fill: '#fff' });
+        text.move(canvasSize / 2, canvasSize / 2 - 20); 
     }
+
+    try { //save to a folder using universal file pathname thingy//
+        const outputPath = path.join(__dirname, 'examples', 'output.svg');
+        fs.writeFileSync(outputPath, draw.svg());
+        console.log('SVG file created successfully!');
+      } catch (error) {
+        console.error('Error creating SVG file:', error);
+      }
   });
