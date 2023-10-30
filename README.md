@@ -57,7 +57,7 @@ To use this project, follow these steps:
 
 ## Walkthrough Video
 
-[Click here to watch the walkthrough video](./examples/walkthrough_video.mp4)
+[Click here to watch the walkthrough video](./examples/logo_video.mp4)
 
 
   
