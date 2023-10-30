@@ -1,4 +1,9 @@
 const inquirer = require('inquirer');
+const fs = require('fs');
+const SVG = require('@svgdotjs/svg.js');
+const Square = require('./lib/square');
+const Circle = require('./lib/circle');
+const Triangle = require('./lib/triangle');
 
 inquirer.prompt({
   type: 'input',
@@ -48,5 +53,24 @@ inquirer.prompt({
   });
 })
 .then(finalAnswers => {
-  console.log('All answers:', finalAnswers);
-});
+    const { logoAcronym, colourInput, shapeInput } = finalAnswers;
+    
+    const draw = SVG().size(300, 300);
+    
+    let shape;
+    if (shapeInput.toLowerCase() === 'circle') {
+      shape = new Circle(colourInput, 100);
+    } else if (shapeInput.toLowerCase() === 'square') {
+      shape = new Square(colourInput, 100);
+    } else if (shapeInput.toLowerCase() === 'triangle') {
+      shape = new Triangle(colourInput, 100);
+    }
+    
+    if (shape) {
+      shape.draw(draw);
+      fs.writeFileSync('output.svg', draw.svg());
+      console.log('SVG file created successfully!');
+    } else {
+      console.log('Invalid shape input');
+    }
+  });
