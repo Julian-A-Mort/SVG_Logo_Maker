@@ -51,6 +51,7 @@ class App {
 
   async generateLogo(finalAnswers) {
     const { logoAcronym, colourInput, shapeInput } = finalAnswers;
+    const color = colourInput.toLowerCase();
 
     // Create canvas size to allow for letter placement
     const canvasWidth = 300;
@@ -61,11 +62,11 @@ class App {
     let shape; 
 
     if (shapeInput.toLowerCase() === 'circle') {
-      shape = new Circle(colourInput, 100);
+      shape = new Circle(color, 100);
     } else if (shapeInput.toLowerCase() === 'square') {
-      shape = new Square(colourInput, 100);
+      shape = new Square(color, 100);
     } else if (shapeInput.toLowerCase() === 'triangle') {
-      shape = new Triangle(colourInput, 100);
+      shape = new Triangle(color, 100);
     }
 
     // Add logo
