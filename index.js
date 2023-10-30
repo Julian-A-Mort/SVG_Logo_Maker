@@ -58,12 +58,13 @@ inquirer.prompt({
 .then(finalAnswers => {
     const { logoAcronym, colourInput, shapeInput } = finalAnswers;
     
-    //created canvas size to allow for letter placement//
-    const canvasSize = 300; 
-
-    const canvas = new fabric.StaticCanvas(null, { width: canvasSize, height: canvasSize });
-
-    //add shape with colour//
+    //created canvas size to allow for letter placement
+    const canvasWidth = 300;
+    const canvasHeight = 200;
+    
+    const canvas = new fabric.StaticCanvas(null, { width: canvasWidth, height: canvasHeight });
+    
+    //add shape with colour
     let shape; 
     if (shapeInput.toLowerCase() === 'circle') {
       shape = new Circle(colourInput, 100);
@@ -73,28 +74,38 @@ inquirer.prompt({
       shape = new Triangle(colourInput, 100);
     }
     
-    //add logo //
+    //add logo 
     if (shape) {
         canvas.add(shape.getFabricObject().set({
-          left: canvasSize / 2,
-          top: canvasSize / 2
-        })); 
+          left: canvasWidth / 2,
+          top: canvasHeight / 2
+        }));       
 
+        let fontSize = 40;
+        let textTopAdjustment = 0;
+        
+        //handles font issues with triangles
+        if (shapeInput.toLowerCase() === 'triangle') {
+          fontSize = 25;
+          textTopAdjustment = 20;
+        }
+
+        //add text
         const text = new fabric.Text(logoAcronym, {
-          fontSize: 40,
-          fill: '#fff',
-          originX: 'center', 
-          originY: 'center',
-          left: canvasSize / 2,
-          top: canvasSize / 2,
-        });
+            fontSize: fontSize,
+            fill: '#fff',
+            originX: 'center', 
+            originY: 'center',
+            left: canvasWidth / 2,
+            top: canvasHeight / 2 + textTopAdjustment,
+          });
     
         canvas.add(text);
         canvas.renderAll();
     
         const outputPath = path.join(__dirname, 'examples', 'logo.svg');
         fs.writeFileSync(outputPath, canvas.toSVG());
-        console.log('SVG file created successfully!');
+        console.log('Generated logo.svg!');
       }
     })
     .catch(error => {
