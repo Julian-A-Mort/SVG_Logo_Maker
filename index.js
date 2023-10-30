@@ -1,11 +1,12 @@
 const inquirer = require('inquirer');
 const path = require('path');
 const fs = require('fs');
-const SVG = require('@svgdotjs/svg.js');
+const { fabric } = require('fabric');
 const Square = require('./lib/square');
 const Circle = require('./lib/circle');
 const Triangle = require('./lib/triangle');
-const Shape = require('/lib/shape');
+
+
 
 inquirer.prompt({
   type: 'input',
@@ -33,8 +34,8 @@ inquirer.prompt({
       return 'Please enter a valid color keyword or hexadecimal color code.';
     }
   })
-  .then(colourAnswer => {
-    return {...answers, ...colourAnswer};
+  .then(colourInput => {
+    return {...answers, ...colourInput};
   });
 })
 .then(answers => {
@@ -57,10 +58,13 @@ inquirer.prompt({
 .then(finalAnswers => {
     const { logoAcronym, colourInput, shapeInput } = finalAnswers;
     
-    const canvasSize = 300; //created canvas size to allow for letter placement//
-    const draw = SVG().size(canvasSize, canvasSize);
+    //created canvas size to allow for letter placement//
+    const canvasSize = 300; 
 
-    let shape; //add shape with colour//
+    const canvas = new fabric.StaticCanvas(null, { width: canvasSize, height: canvasSize });
+
+    //add shape with colour//
+    let shape; 
     if (shapeInput.toLowerCase() === 'circle') {
       shape = new Circle(colourInput, 100);
     } else if (shapeInput.toLowerCase() === 'square') {
@@ -69,17 +73,30 @@ inquirer.prompt({
       shape = new Triangle(colourInput, 100);
     }
     
-    if (shape) { //add logo //
-        shape.draw(draw);
-        const text = draw.text(logoAcronym).font({ size: 40, anchor: 'middle', fill: '#fff' });
-        text.move(canvasSize / 2, canvasSize / 2 - 20); 
-    }
+    //add logo //
+    if (shape) {
+        canvas.add(shape.getFabricObject().set({
+          left: canvasSize / 2,
+          top: canvasSize / 2
+        })); 
 
-    try { //save to a folder using universal file pathname thingy//
-        const outputPath = path.join(__dirname, 'examples', 'output.svg');
-        fs.writeFileSync(outputPath, draw.svg());
+        const text = new fabric.Text(logoAcronym, {
+          fontSize: 40,
+          fill: '#fff',
+          originX: 'center', 
+          originY: 'center',
+          left: canvasSize / 2,
+          top: canvasSize / 2,
+        });
+    
+        canvas.add(text);
+        canvas.renderAll();
+    
+        const outputPath = path.join(__dirname, 'examples', 'logo.svg');
+        fs.writeFileSync(outputPath, canvas.toSVG());
         console.log('SVG file created successfully!');
-      } catch (error) {
-        console.error('Error creating SVG file:', error);
       }
-  });
+    })
+    .catch(error => {
+      console.error('Error:', error);
+});
